@@ -15,7 +15,14 @@ class StreamService {
 
   private intervals: number[] = []
 
-  private store = useRealtimeStore()
+  private _store: ReturnType<typeof useRealtimeStore> | null = null
+
+  private get store() {
+    if (!this._store) {
+      this._store = useRealtimeStore()
+    }
+    return this._store
+  }
 
   subscribe(callback: Subscriber) {
     this.subscribers.add(callback)
