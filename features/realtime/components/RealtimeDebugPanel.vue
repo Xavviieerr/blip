@@ -39,6 +39,24 @@
     <pre v-if="store.activity[0]"
       >{{ store.activity[0] }}
     </pre>
+
+    <hr />
+
+    <h3>CPU SERIES</h3>
+
+    <pre
+      >{{ cpuSeries }}
+</pre
+    >
+
+    <hr />
+
+    <h3>HEATMAP DATA</h3>
+
+    <pre
+      >{{ heatmapSeries }}
+</pre
+    >
   </div>
 </template>
 
@@ -48,19 +66,22 @@ import { ref, watchEffect } from 'vue'
 import { useRealtimeStore } from '../store/realtime.store'
 import { streamService } from '../services/stream.service'
 import { useRealtimeSelectors } from '../hooks/useRealtimeSelectors'
+import { useChartData } from '../../charts/hooks/useChartData'
+
+const { cpuSeries, heatmapSeries } = useChartData()
 const { cpuTrend, recentActivity, criticalAlerts, latestMetrics } = useRealtimeSelectors()
 
-watchEffect(() => {
-  console.log('======================')
+// watchEffect(() => {
+//   console.log('======================')
 
-  console.log('📊 latestMetrics', JSON.parse(JSON.stringify(latestMetrics.value)))
+//   console.log('📊 latestMetrics', JSON.parse(JSON.stringify(latestMetrics.value)))
 
-  console.log('🚨 criticalAlerts', JSON.parse(JSON.stringify(criticalAlerts.value)))
+//   console.log('🚨 criticalAlerts', JSON.parse(JSON.stringify(criticalAlerts.value)))
 
-  console.log('🧾 recentActivity', JSON.parse(JSON.stringify(recentActivity.value)))
+//   console.log('🧾 recentActivity', JSON.parse(JSON.stringify(recentActivity.value)))
 
-  console.log('📈 cpuTrend', JSON.parse(JSON.stringify(cpuTrend.value)))
-})
+//   console.log('📈 cpuTrend', JSON.parse(JSON.stringify(cpuTrend.value)))
+// })
 
 const store = useRealtimeStore()
 
