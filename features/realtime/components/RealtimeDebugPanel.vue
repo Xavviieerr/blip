@@ -43,10 +43,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 
 import { useRealtimeStore } from '../store/realtime.store'
 import { streamService } from '../services/stream.service'
+import { useRealtimeSelectors } from '../hooks/useRealtimeSelectors'
+const { cpuTrend, recentActivity, criticalAlerts, latestMetrics } = useRealtimeSelectors()
+
+watchEffect(() => {
+  console.log('======================')
+
+  console.log('📊 latestMetrics', JSON.parse(JSON.stringify(latestMetrics.value)))
+
+  console.log('🚨 criticalAlerts', JSON.parse(JSON.stringify(criticalAlerts.value)))
+
+  console.log('🧾 recentActivity', JSON.parse(JSON.stringify(recentActivity.value)))
+
+  console.log('📈 cpuTrend', JSON.parse(JSON.stringify(cpuTrend.value)))
+})
 
 const store = useRealtimeStore()
 
