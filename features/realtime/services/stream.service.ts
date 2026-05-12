@@ -6,6 +6,7 @@ import { useRealtimeStore } from '../store/realtime.store'
 import { useConnectionStore } from '../store/connection.store'
 import { eventBufferService } from './event-buffer.service'
 import { throttle } from '../../../hooks/useThrottle'
+import { MetricEventSchema, AlertEventSchema, ActivityEventSchema } from '../../../lib/validators'
 
 type Subscriber = (event: RealtimeEvent) => void
 
@@ -15,6 +16,8 @@ class StreamService {
   private intervals: number[] = []
 
   private reconnectTimeout: number | null = null
+
+  private isRunning = false
 
   private _store: ReturnType<typeof useRealtimeStore> | null = null
 
@@ -27,15 +30,32 @@ class StreamService {
     return this._connectionStore
   }
 
-  private handleThrottledEmit(event: RealtimeEvent) {
+  private validateEvent(event: RealtimeEvent) {
+    switch (event.type) {
+      case 'metric':
+        return MetricEventSchema.safeParse(event)
+
+      case 'alert':
+        return AlertEventSchema.safeParse(event)
+
+      case 'activity':
+        return ActivityEventSchema.safeParse(event)
+    }
+  }
+
+  private handleThrottledEmit() {
     try {
-      for (const subscriber of this.subscribers) {
-        subscriber(event)
+      const events = eventBufferService.flush()
+
+      console.log(`📦 FLUSHING ${events.length} EVENTS TO SUBSCRIBERS`)
+
+      for (const event of events) {
+        for (const subscriber of this.subscribers) {
+          subscriber(event)
+        }
       }
 
-      this.store.addEvent(event)
-
-      console.log('📡 EVENT EMITTED')
+      console.log('📡 EVENTS EMITTED')
     } catch (error) {
       console.error('❌ THROTTLED EMIT ERROR', error)
     }
@@ -53,19 +73,27 @@ class StreamService {
   subscribe(callback: Subscriber) {
     this.subscribers.add(callback)
 
-    console.log('✅ SUBSCRIBER ADDED')
+    console.log('👂 SUBSCRIBER ADDED')
 
     return () => {
       this.subscribers.delete(callback)
 
-      console.log('❌ SUBSCRIBER REMOVED')
+      console.log('🧹 SUBSCRIBER REMOVED')
     }
   }
 
   private emit(event: RealtimeEvent) {
+    const validation = this.validateEvent(event)
+
+    if (!validation?.success) {
+      console.error('❌ INVALID EVENT BLOCKED', validation.error)
+
+      return
+    }
+
     eventBufferService.add(event)
 
-    this.throttledEmit(event)
+    this.throttledEmit()
   }
 
   private reconnect() {
@@ -96,10 +124,13 @@ class StreamService {
   }
 
   start() {
-    if (this.intervals.length > 0) {
+    if (this.isRunning) {
       console.warn('⚠ STREAM ALREADY RUNNING')
+
       return
     }
+
+    this.isRunning = true
 
     try {
       console.log('🚀 STARTING STREAM...')
@@ -167,7 +198,7 @@ class StreamService {
     this.intervals.forEach((interval) => {
       clearInterval(interval)
     })
-
+    this.isRunning = false
     this.intervals = []
   }
 }

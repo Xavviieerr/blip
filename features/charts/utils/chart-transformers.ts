@@ -26,12 +26,12 @@ export function buildNetworkTrend(metrics: MetricEvent[]): RealtimeSeries {
   }
 }
 
-export function buildHeatmapData(metrics: MetricEvent[]): HeatmapPoint[] {
-  return metrics.map((metric, index) => ({
-    x: index % 10,
+// export function buildHeatmapData(metrics: MetricEvent[]): HeatmapPoint[] {
+//   return metrics.map((metric, index) => ({
+//     x: index % 10,
 
-    y: Math.floor(index / 10),
+//     y: Math.floor(index / 10),
 
-    value: metric.metric.cpu,
-  }))
-}
+//     value: metric.metric.cpu,
+//   }))
+// }

@@ -1,4 +1,5 @@
 import type { AlertEvent, Severity } from '../types/realtime.types'
+import { THREAT_TYPES } from '../constants/threat-types'
 
 const severities: Severity[] = ['low', 'medium', 'high', 'critical']
 
@@ -28,15 +29,18 @@ export function generateAlertEvent(): AlertEvent {
     type: 'alert',
 
     alert: {
-      severity: randomItem(severities),
+      severity: randomItem(severities) || 'low',
 
       message: randomItem(messages),
 
       source: randomItem(sources),
+
+      threatType: THREAT_TYPES[Math.floor(Math.random() * THREAT_TYPES.length)]!,
     },
   }
 
   console.log('🚨 ALERT EVENT GENERATED')
+
   console.log(event)
 
   return event

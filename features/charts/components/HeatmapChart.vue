@@ -1,6 +1,6 @@
 <template>
   <div class="chart-card">
-    <h3>CPU Threat Activity</h3>
+    <h3>Threat Heatmap</h3>
 
     <v-chart class="chart" :option="option" autoresize />
   </div>
@@ -11,42 +11,50 @@ import { computed } from 'vue'
 
 import VChart from 'vue-echarts'
 
-import { CanvasRenderer } from 'echarts/renderers'
-
-import { LineChart } from 'echarts/charts'
-
-import { GridComponent, TooltipComponent } from 'echarts/components'
-
-import { use } from 'echarts/core'
-
 import { useChartData } from '../hooks/useChartData'
 
-use([CanvasRenderer, LineChart, GridComponent, TooltipComponent])
-
-const { cpuSeries } = useChartData()
+const { heatmapSeries } = useChartData()
 
 const option = computed(() => ({
-  tooltip: {
-    trigger: 'axis',
-  },
+  tooltip: {},
 
   xAxis: {
     type: 'category',
 
-    data: cpuSeries.value.labels,
+    data: heatmapSeries.value.xLabels,
   },
 
   yAxis: {
-    type: 'value',
+    type: 'category',
+
+    data: heatmapSeries.value.yLabels,
+  },
+
+  visualMap: {
+    min: 0,
+
+    max: 20,
+
+    calculable: true,
+
+    orient: 'horizontal',
+
+    left: 'center',
+
+    bottom: 0,
   },
 
   series: [
     {
-      data: cpuSeries.value.values,
+      type: 'heatmap',
 
-      type: 'line',
+      data: heatmapSeries.value.data,
 
-      smooth: true,
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+        },
+      },
     },
   ],
 }))

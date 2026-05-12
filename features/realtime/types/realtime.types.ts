@@ -24,7 +24,11 @@ export interface AlertEvent extends BaseRealtimeEvent {
 
   alert: {
     severity: Severity
+
     message: string
+
+    threatType: string
+
     source: string
   }
 }
