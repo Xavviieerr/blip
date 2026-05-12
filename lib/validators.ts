@@ -23,9 +23,13 @@ export const AlertEventSchema = z.object({
   timestamp: z.number(),
 
   alert: z.object({
-    severity: z.enum(['low', 'medium', 'critical']),
+    severity: z.enum(['low', 'medium', 'high', 'critical']),
 
     message: z.string(),
+
+    threatType: z.string(),
+
+    source: z.string(),
   }),
 })
 
@@ -39,5 +43,6 @@ export const ActivityEventSchema = z.object({
   activity: z.object({
     user: z.string(),
     action: z.string(),
+    ip: z.string(),
   }),
 })

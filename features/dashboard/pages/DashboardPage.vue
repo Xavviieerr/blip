@@ -19,6 +19,8 @@
 
       <ChartsGrid />
 
+      <ToastContainer />
+
       <ActivityFeed />
     </main>
   </div>
@@ -26,6 +28,8 @@
 
 <script setup lang="ts">
 import DashboardHeader from '../components/DashboardHeader.vue'
+
+import ToastContainer from '../../alerts/components/ToastContainer.vue'
 
 import ConnectionStatus from '../../realtime/components/ConnectionStatus.vue'
 
