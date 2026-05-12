@@ -2,7 +2,7 @@
   <div class="chart-card">
     <h3>CPU Threat Activity</h3>
 
-    <v-chart class="chart" :option="option" autoresize />
+    <v-chart class="chart" :option="option" :theme="themeStore.theme" autoresize />
   </div>
 </template>
 
@@ -21,7 +21,11 @@ import { use } from 'echarts/core'
 
 import { useChartData } from '../hooks/useChartData'
 
+import { useThemeStore } from '../../../stores/theme.store'
+
 use([CanvasRenderer, LineChart, GridComponent, TooltipComponent])
+
+const themeStore = useThemeStore()
 
 const { cpuSeries } = useChartData()
 

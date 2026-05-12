@@ -71,5 +71,18 @@ useRealtimeSync()
   flex-direction: column;
 
   gap: 24px;
+
+  max-width: 1400px;
+
+  margin: 0 auto;
+}
+@media (max-width: 768px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    display: none;
+  }
 }
 </style>

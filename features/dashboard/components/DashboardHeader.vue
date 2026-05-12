@@ -5,6 +5,7 @@
 
       <p>Real-time network threat monitoring</p>
     </div>
+    <ThemeToggle />
 
     <div class="status">
       <span class="dot" />
@@ -13,6 +14,10 @@
     </div>
   </header>
 </template>
+
+<script setup lang="ts">
+import ThemeToggle from '@/components/shared/ThemeToggle.vue'
+</script>
 
 <style scoped>
 .header {

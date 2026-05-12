@@ -2,7 +2,7 @@
   <div class="chart-card">
     <h3>Threat Heatmap</h3>
 
-    <v-chart class="chart" :option="option" autoresize />
+    <v-chart class="chart" :option="option" :theme="themeStore.theme" autoresize />
   </div>
 </template>
 
@@ -11,7 +11,21 @@ import { computed } from 'vue'
 
 import VChart from 'vue-echarts'
 
+import { CanvasRenderer } from 'echarts/renderers'
+
+import { HeatmapChart } from 'echarts/charts'
+
+import { GridComponent, TooltipComponent, VisualMapComponent } from 'echarts/components'
+
+import { use } from 'echarts/core'
+
 import { useChartData } from '../hooks/useChartData'
+
+import { useThemeStore } from '../../../stores/theme.store'
+
+use([CanvasRenderer, HeatmapChart, GridComponent, TooltipComponent, VisualMapComponent])
+
+const themeStore = useThemeStore()
 
 const { heatmapSeries } = useChartData()
 
@@ -33,7 +47,7 @@ const option = computed(() => ({
   visualMap: {
     min: 0,
 
-    max: 20,
+    max: 100,
 
     calculable: true,
 

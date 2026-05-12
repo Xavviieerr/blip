@@ -3,20 +3,17 @@ import { computed } from 'vue'
 import { useRealtimeStore } from '../../realtime/store/realtime.store'
 import { useFilterStore } from '../../filters/store/filter.store'
 import { filterByTimeRange } from '../../realtime/utils/time-window'
-import { buildHeatmapData } from '../utils/heatmap-transformer'
 
-import { buildCPUTrend, buildMemoryTrend, buildNetworkTrend } from '../utils/chart-transformers'
+import {
+  buildCPUTrend,
+  buildMemoryTrend,
+  buildNetworkTrend,
+  buildRequestTrend,
+  buildHeatmapData,
+} from '../utils/chart-transformers'
 
 export function useChartData() {
   const store = useRealtimeStore()
-
-  const requestSeries = computed(() => {
-    return {
-      labels: filteredMetrics.value.map((_, index) => index),
-
-      values: filteredMetrics.value.map((item) => item.metric.requests),
-    }
-  })
 
   const cpuSeries = computed(() => {
     return buildCPUTrend(filteredMetrics.value)
@@ -27,11 +24,15 @@ export function useChartData() {
   })
 
   const heatmapSeries = computed(() => {
-    return buildHeatmapData(store.alerts)
+    return buildHeatmapData(filteredMetrics.value)
   })
 
   const networkSeries = computed(() => {
     return buildNetworkTrend(filteredMetrics.value)
+  })
+
+  const requestSeries = computed(() => {
+    return buildRequestTrend(filteredMetrics.value)
   })
 
   const filters = useFilterStore()

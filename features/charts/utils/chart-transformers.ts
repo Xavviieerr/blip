@@ -26,12 +26,25 @@ export function buildNetworkTrend(metrics: MetricEvent[]): RealtimeSeries {
   }
 }
 
-// export function buildHeatmapData(metrics: MetricEvent[]): HeatmapPoint[] {
-//   return metrics.map((metric, index) => ({
-//     x: index % 10,
+export function buildRequestTrend(metrics: MetricEvent[]): RealtimeSeries {
+  return {
+    labels: metrics.map((m) => new Date(m.timestamp).toLocaleTimeString()),
 
-//     y: Math.floor(index / 10),
+    values: metrics.map((m) => m.metric.requests),
+  }
+}
 
-//     value: metric.metric.cpu,
-//   }))
-// }
+export function buildHeatmapData(metrics: MetricEvent[]) {
+  const xLabels = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09']
+  const yLabels = ['R1', 'R2', 'R3', 'R4', 'R5']
+
+  const data = metrics.slice(0, 50).map((metric, index) => {
+    return [index % 10, Math.floor(index / 10), metric.metric.cpu]
+  })
+
+  return {
+    xLabels,
+    yLabels,
+    data,
+  }
+}
