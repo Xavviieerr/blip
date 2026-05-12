@@ -1,21 +1,19 @@
 <template>
-  <div>
-    <h2>Charts</h2>
-
+  <div class="grid">
     <CPUChart />
-
-    <MemoryChart />
-
-    <HeatmapChart />
   </div>
 </template>
 
 <script setup lang="ts">
 import CPUChart from './CPUChart.vue'
-
-// import MemoryChart
-// from './MemoryChart.vue'
-
-// import HeatmapChart
-// from './HeatmapChart.vue'
 </script>
+
+<style scoped>
+.grid {
+  display: grid;
+
+  grid-template-columns: 1fr;
+
+  gap: 20px;
+}
+</style>

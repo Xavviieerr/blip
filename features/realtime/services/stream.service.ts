@@ -43,15 +43,19 @@ class StreamService {
     }
   }
 
-  private handleThrottledEmit(event: RealtimeEvent) {
+  private handleThrottledEmit() {
     try {
-      for (const subscriber of this.subscribers) {
-        subscriber(event)
+      const events = eventBufferService.flush()
+
+      console.log(`📦 FLUSHING ${events.length} EVENTS TO SUBSCRIBERS`)
+
+      for (const event of events) {
+        for (const subscriber of this.subscribers) {
+          subscriber(event)
+        }
       }
 
-      this.store.addEvent(event)
-
-      console.log('📡 EVENT EMITTED')
+      console.log('📡 EVENTS EMITTED')
     } catch (error) {
       console.error('❌ THROTTLED EMIT ERROR', error)
     }
@@ -89,7 +93,7 @@ class StreamService {
 
     eventBufferService.add(event)
 
-    this.throttledEmit(event)
+    this.throttledEmit()
   }
 
   private reconnect() {
