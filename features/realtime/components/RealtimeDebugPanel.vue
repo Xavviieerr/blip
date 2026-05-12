@@ -39,6 +39,23 @@
     <pre v-if="store.activity[0]"
       >{{ store.activity[0] }}
     </pre>
+    <hr />
+
+    <h3>Connection</h3>
+
+    <p>Status: {{ connection.status }}</p>
+
+    <p>
+      Reconnect Attempts:
+      {{ connection.reconnectAttempts }}
+    </p>
+
+    <p>
+      Last Connected:
+      {{ connection.lastConnectedAt }}
+    </p>
+
+    <p>Error: {{ connection.error }}</p>
 
     <hr />
 
@@ -68,6 +85,9 @@ import { streamService } from '../services/stream.service'
 import { useRealtimeSelectors } from '../hooks/useRealtimeSelectors'
 import { useChartData } from '../../charts/hooks/useChartData'
 
+import { useConnectionStore } from '../store/connection.store'
+
+const connection = useConnectionStore()
 const { cpuSeries, heatmapSeries } = useChartData()
 const { cpuTrend, recentActivity, criticalAlerts, latestMetrics } = useRealtimeSelectors()
 
