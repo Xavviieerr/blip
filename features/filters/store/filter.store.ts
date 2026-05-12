@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
-
-export type TimeRange = '1m' | '5m' | '1h'
+import type { TimeRange } from '../types/time-range.types'
 
 interface FilterState {
   timeRange: TimeRange

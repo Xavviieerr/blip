@@ -14,6 +14,8 @@ class StreamService {
 
   private intervals: number[] = []
 
+  private reconnectTimeout: number | null = null
+
   private _store: ReturnType<typeof useRealtimeStore> | null = null
 
   private _connectionStore: ReturnType<typeof useConnectionStore> | null = null
@@ -60,19 +62,6 @@ class StreamService {
     }
   }
 
-  // private emit(event: RealtimeEvent) {
-  //   try {
-  //     for (const subscriber of this.subscribers) {
-  //       subscriber(event)
-  //     }
-
-  //     this.store.addEvent(event)
-
-  //     console.log('📡 EVENT ROUTED TO STORE')
-  //   } catch (error) {
-  //     console.error('❌ EMIT ERROR', error)
-  //   }
-  // }
   private emit(event: RealtimeEvent) {
     eventBufferService.add(event)
 
@@ -88,7 +77,8 @@ class StreamService {
 
     console.log(`🔄 RECONNECTING IN ${delay}ms`)
 
-    setTimeout(() => {
+    this.reconnectTimeout = window.setTimeout(() => {
+      this.reconnectTimeout = null
       this.start()
     }, delay)
   }
@@ -106,6 +96,11 @@ class StreamService {
   }
 
   start() {
+    if (this.intervals.length > 0) {
+      console.warn('⚠ STREAM ALREADY RUNNING')
+      return
+    }
+
     try {
       console.log('🚀 STARTING STREAM...')
 
@@ -141,17 +136,17 @@ class StreamService {
         this.emit(event)
       }, 2000)
 
-      // save intervals for cleanup
-      this.intervals.push(metricsInterval, alertsInterval, activityInterval)
-
       // random simulated failure
-      window.setInterval(() => {
+      const failureInterval = window.setInterval(() => {
         const randomFailure = Math.random() < 0.1
 
         if (randomFailure) {
           this.simulateFailure()
         }
       }, 10000)
+
+      // save intervals for cleanup
+      this.intervals.push(metricsInterval, alertsInterval, activityInterval, failureInterval)
     } catch (error) {
       console.error('❌ STREAM START ERROR', error)
 
@@ -163,6 +158,11 @@ class StreamService {
     console.log('🛑 STOPPING STREAM')
 
     this.connectionStore.setStatus('disconnected')
+
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout)
+      this.reconnectTimeout = null
+    }
 
     this.intervals.forEach((interval) => {
       clearInterval(interval)

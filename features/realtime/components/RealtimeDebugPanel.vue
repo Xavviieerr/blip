@@ -5,7 +5,7 @@
     <hr />
 
     <!-- STATUS -->
-    <p><strong>Status:</strong> {{ status }}</p>
+    <p><strong>Status:</strong> {{ status }}</p
 
     <!-- CONTROLS -->
     <button @click="startStream">Start Stream</button>
@@ -13,6 +13,15 @@
     <button @click="togglePause">
       {{ store.isPaused ? 'Resume Store' : 'Pause Store' }}
     </button>
+
+    <hr />
+
+    <h3>Time Range</h3>
+
+    <button @click="filters.setTimeRange('1m')">1m</button>
+    <button @click="filters.setTimeRange('5m')">5m</button>
+    <button @click="filters.setTimeRange('15m')">15m</button>
+    <button @click="filters.setTimeRange('1h')">1h</button>
 
     <hr />
 
@@ -86,6 +95,9 @@ import { useRealtimeSelectors } from '../hooks/useRealtimeSelectors'
 import { useChartData } from '../../charts/hooks/useChartData'
 
 import { useConnectionStore } from '../store/connection.store'
+import { useFilterStore } from '../../filters/store/filter.store'
+
+const filters = useFilterStore()
 
 const connection = useConnectionStore()
 const { cpuSeries, heatmapSeries } = useChartData()
