@@ -1,12 +1,11 @@
 import { generateMetricEvent } from '../generators/metrics.generator'
-
 import { generateAlertEvent } from '../generators/alerts.generator'
-
 import { generateActivityEvent } from '../generators/activity.generator'
-
 import type { RealtimeEvent } from '../types/realtime.types'
-
 import { useRealtimeStore } from '../store/realtime.store'
+import { useConnectionStore } from '../store/connection.store'
+import { eventBufferService } from './event-buffer.service'
+import { throttle } from '../../../hooks/useThrottle'
 
 type Subscriber = (event: RealtimeEvent) => void
 
@@ -15,7 +14,34 @@ class StreamService {
 
   private intervals: number[] = []
 
+  private reconnectTimeout: number | null = null
+
   private _store: ReturnType<typeof useRealtimeStore> | null = null
+
+  private _connectionStore: ReturnType<typeof useConnectionStore> | null = null
+
+  private get connectionStore() {
+    if (!this._connectionStore) {
+      this._connectionStore = useConnectionStore()
+    }
+    return this._connectionStore
+  }
+
+  private handleThrottledEmit(event: RealtimeEvent) {
+    try {
+      for (const subscriber of this.subscribers) {
+        subscriber(event)
+      }
+
+      this.store.addEvent(event)
+
+      console.log('📡 EVENT EMITTED')
+    } catch (error) {
+      console.error('❌ THROTTLED EMIT ERROR', error)
+    }
+  }
+
+  private throttledEmit = throttle(this.handleThrottledEmit.bind(this), 100)
 
   private get store() {
     if (!this._store) {
@@ -37,47 +63,110 @@ class StreamService {
   }
 
   private emit(event: RealtimeEvent) {
-    try {
-      for (const subscriber of this.subscribers) {
-        subscriber(event)
-      }
+    eventBufferService.add(event)
 
-      this.store.addEvent(event)
+    this.throttledEmit(event)
+  }
 
-      console.log('📡 EVENT ROUTED TO STORE')
-    } catch (error) {
-      console.error('❌ EMIT ERROR', error)
-    }
+  private reconnect() {
+    this.connectionStore.setStatus('reconnecting')
+
+    this.connectionStore.incrementReconnect()
+
+    const delay = Math.min(1000 * this.connectionStore.reconnectAttempts, 5000)
+
+    console.log(`🔄 RECONNECTING IN ${delay}ms`)
+
+    this.reconnectTimeout = window.setTimeout(() => {
+      this.reconnectTimeout = null
+      this.start()
+    }, delay)
+  }
+
+  private simulateFailure() {
+    console.warn('⚠ SIMULATED CONNECTION FAILURE')
+
+    this.connectionStore.setStatus('error')
+
+    this.connectionStore.setError('Random connection drop detected')
+
+    this.stop()
+
+    this.reconnect()
   }
 
   start() {
-    console.log('🚀 STREAM STARTED')
+    if (this.intervals.length > 0) {
+      console.warn('⚠ STREAM ALREADY RUNNING')
+      return
+    }
 
-    const metricsInterval = window.setInterval(() => {
-      const event = generateMetricEvent()
+    try {
+      console.log('🚀 STARTING STREAM...')
 
-      this.emit(event)
-    }, 1000)
+      this.connectionStore.setStatus('connecting')
 
-    const alertsInterval = window.setInterval(() => {
-      const event = generateAlertEvent()
+      // simulate connection delay
+      setTimeout(() => {
+        this.connectionStore.setStatus('connected')
 
-      this.emit(event)
-    }, 3000)
+        this.connectionStore.setConnectedNow()
 
-    const activityInterval = window.setInterval(() => {
-      const event = generateActivityEvent()
+        console.log('✅ STREAM CONNECTED')
+      }, 1000)
 
-      this.emit(event)
-    }, 2000)
+      // 📊 metrics stream
+      const metricsInterval = window.setInterval(() => {
+        const event = generateMetricEvent()
 
-    this.intervals.push(metricsInterval, alertsInterval, activityInterval)
+        this.emit(event)
+      }, 1000)
+
+      // 🚨 alerts stream
+      const alertsInterval = window.setInterval(() => {
+        const event = generateAlertEvent()
+
+        this.emit(event)
+      }, 3000)
+
+      // 🧾 activity stream
+      const activityInterval = window.setInterval(() => {
+        const event = generateActivityEvent()
+
+        this.emit(event)
+      }, 2000)
+
+      // random simulated failure
+      const failureInterval = window.setInterval(() => {
+        const randomFailure = Math.random() < 0.1
+
+        if (randomFailure) {
+          this.simulateFailure()
+        }
+      }, 10000)
+
+      // save intervals for cleanup
+      this.intervals.push(metricsInterval, alertsInterval, activityInterval, failureInterval)
+    } catch (error) {
+      console.error('❌ STREAM START ERROR', error)
+
+      this.connectionStore.setStatus('error')
+    }
   }
 
   stop() {
-    console.log('🛑 STREAM STOPPED')
+    console.log('🛑 STOPPING STREAM')
 
-    this.intervals.forEach(clearInterval)
+    this.connectionStore.setStatus('disconnected')
+
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout)
+      this.reconnectTimeout = null
+    }
+
+    this.intervals.forEach((interval) => {
+      clearInterval(interval)
+    })
 
     this.intervals = []
   }

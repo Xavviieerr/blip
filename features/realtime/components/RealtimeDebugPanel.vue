@@ -16,6 +16,15 @@
 
     <hr />
 
+    <h3>Time Range</h3>
+
+    <button @click="filters.setTimeRange('1m')">1m</button>
+    <button @click="filters.setTimeRange('5m')">5m</button>
+    <button @click="filters.setTimeRange('15m')">15m</button>
+    <button @click="filters.setTimeRange('1h')">1h</button>
+
+    <hr />
+
     <!-- STORE SUMMARY -->
     <h3>Store Summary</h3>
     <p>Metrics: {{ store.metrics.length }}</p>
@@ -23,6 +32,18 @@
     <p>Activity: {{ store.activity.length }}</p>
 
     <hr />
+    <!-- <hr />
+    <h3>System Analytics</h3>
+    <p>Avg CPU: {{ summary.avgCpu }}</p>
+    <p>Max CPU: {{ summary.maxCpu }}</p>
+    <p>Total Requests: {{ summary.totalRequests }}</p>
+    <p>Total Alerts: {{ summary.totalAlerts }}</p>
+    <p>Spike Detected: {{ summary.spikeDetected }}</p> -->
+
+<p>
+Health Status:
+{{ alertLevel }}
+</p>
 
     <!-- LIVE SAMPLE DATA -->
     <h3>Latest Metric</h3>
@@ -39,14 +60,85 @@
     <pre v-if="store.activity[0]"
       >{{ store.activity[0] }}
     </pre>
+    <hr />
+
+    <h3>Connection</h3>
+
+    <p>Status: {{ connection.status }}</p>
+
+    <p>
+      Reconnect Attempts:
+      {{ connection.reconnectAttempts }}
+    </p>
+
+    <p>
+      Last Connected:
+      {{ connection.lastConnectedAt }}
+    </p>
+
+    <p>Error: {{ connection.error }}</p>
+
+    <hr />
+
+    <!-- SYSTEM ANALYTICS -->
+    <h3>System Analytics</h3>
+    <div
+      :style="{
+        color: alertLevel === 'danger' ? 'red' : alertLevel === 'warning' ? 'orange' : 'inherit',
+      }"
+    >
+      <p>
+        <strong>Health:</strong>
+        {{ isHealthy ? 'Healthy ✅' : 'Spike Detected 🚨' }}
+      </p>
+      <p><strong>Avg CPU:</strong> {{ summary.avgCpu.toFixed(2) }}%</p>
+      <p><strong>Max CPU:</strong> {{ summary.maxCpu.toFixed(2) }}%</p>
+      <p><strong>Total Requests:</strong> {{ summary.totalRequests }}</p>
+      <p><strong>Alert Level:</strong> {{ alertLevel.toUpperCase() }}</p>
+    </div>
+
+    <hr />
+
+    <h3>CPU SERIES</h3>
+
+    <pre>{{ cpuSeries }}</pre>
+
+    <hr />
+
+    <h3>HEATMAP DATA</h3>
+
+    <pre>{{ heatmapSeries }}</pre>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 
 import { useRealtimeStore } from '../store/realtime.store'
 import { streamService } from '../services/stream.service'
+import { useRealtimeSelectors } from '../hooks/useRealtimeSelectors'
+import { useChartData } from '../../charts/hooks/useChartData'
+import { useConnectionStore } from '../store/connection.store'
+import { useFilterStore } from '../../filters/store/filter.store'
+import { useAnalytics } from '../../analytics/hooks/useAnalytics'
+
+const filters = useFilterStore()
+const { summary, isHealthy, alertLevel } = useAnalytics()
+const connection = useConnectionStore()
+const { cpuSeries, heatmapSeries } = useChartData()
+const { cpuTrend, recentActivity, criticalAlerts, latestMetrics } = useRealtimeSelectors()
+console.log("Analytics Max CPU:", summary.value.maxCpu)
+// watchEffect(() => {
+//   console.log('======================')
+
+//   console.log('📊 latestMetrics', JSON.parse(JSON.stringify(latestMetrics.value)))
+
+//   console.log('🚨 criticalAlerts', JSON.parse(JSON.stringify(criticalAlerts.value)))
+
+//   console.log('🧾 recentActivity', JSON.parse(JSON.stringify(recentActivity.value)))
+
+//   console.log('📈 cpuTrend', JSON.parse(JSON.stringify(cpuTrend.value)))
+// })
 
 const store = useRealtimeStore()
 

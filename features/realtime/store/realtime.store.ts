@@ -33,7 +33,7 @@ export const useRealtimeStore = defineStore('realtime', {
 
     addEvent(event: RealtimeEvent) {
       if (this.isPaused) return
-
+      console.log('📥 EVENT RECEIVED IN STORE:', event)
       try {
         switch (event.type) {
           case 'metric':
