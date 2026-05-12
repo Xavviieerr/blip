@@ -6,6 +6,7 @@ import { useRealtimeStore } from '../store/realtime.store'
 import { useConnectionStore } from '../store/connection.store'
 import { eventBufferService } from './event-buffer.service'
 import { throttle } from '../../../hooks/useThrottle'
+import { MetricEventSchema, AlertEventSchema, ActivityEventSchema } from '../../../lib/validators'
 
 type Subscriber = (event: RealtimeEvent) => void
 
@@ -16,6 +17,8 @@ class StreamService {
 
   private reconnectTimeout: number | null = null
 
+  private isRunning = false
+
   private _store: ReturnType<typeof useRealtimeStore> | null = null
 
   private _connectionStore: ReturnType<typeof useConnectionStore> | null = null
@@ -25,6 +28,19 @@ class StreamService {
       this._connectionStore = useConnectionStore()
     }
     return this._connectionStore
+  }
+
+  private validateEvent(event: RealtimeEvent) {
+    switch (event.type) {
+      case 'metric':
+        return MetricEventSchema.safeParse(event)
+
+      case 'alert':
+        return AlertEventSchema.safeParse(event)
+
+      case 'activity':
+        return ActivityEventSchema.safeParse(event)
+    }
   }
 
   private handleThrottledEmit(event: RealtimeEvent) {
@@ -53,16 +69,24 @@ class StreamService {
   subscribe(callback: Subscriber) {
     this.subscribers.add(callback)
 
-    console.log('✅ SUBSCRIBER ADDED')
+    console.log('👂 SUBSCRIBER ADDED')
 
     return () => {
       this.subscribers.delete(callback)
 
-      console.log('❌ SUBSCRIBER REMOVED')
+      console.log('🧹 SUBSCRIBER REMOVED')
     }
   }
 
   private emit(event: RealtimeEvent) {
+    const validation = this.validateEvent(event)
+
+    if (!validation?.success) {
+      console.error('❌ INVALID EVENT BLOCKED', validation.error)
+
+      return
+    }
+
     eventBufferService.add(event)
 
     this.throttledEmit(event)
@@ -96,10 +120,13 @@ class StreamService {
   }
 
   start() {
-    if (this.intervals.length > 0) {
+    if (this.isRunning) {
       console.warn('⚠ STREAM ALREADY RUNNING')
+
       return
     }
+
+    this.isRunning = true
 
     try {
       console.log('🚀 STARTING STREAM...')
@@ -167,7 +194,7 @@ class StreamService {
     this.intervals.forEach((interval) => {
       clearInterval(interval)
     })
-
+    this.isRunning = false
     this.intervals = []
   }
 }
