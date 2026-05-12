@@ -10,6 +10,14 @@ import { buildCPUTrend, buildMemoryTrend, buildNetworkTrend } from '../utils/cha
 export function useChartData() {
   const store = useRealtimeStore()
 
+  const requestSeries = computed(() => {
+    return {
+      labels: filteredMetrics.value.map((_, index) => index),
+
+      values: filteredMetrics.value.map((item) => item.metric.requests),
+    }
+  })
+
   const cpuSeries = computed(() => {
     return buildCPUTrend(filteredMetrics.value)
   })
@@ -37,5 +45,6 @@ export function useChartData() {
     memorySeries,
     networkSeries,
     heatmapSeries,
+    requestSeries,
   }
 }
