@@ -19,7 +19,6 @@ export const useFilterStore = defineStore('filters', {
   actions: {
     setTimeRange(range: TimeRange) {
       this.timeRange = range
-      console.log('⏱ TIME RANGE SET:', range)
     },
 
     toggleAlerts() {

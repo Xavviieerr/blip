@@ -37,8 +37,5 @@ export function generateActivityEvent(): ActivityEvent {
     },
   }
 
-  console.log('🧾 ACTIVITY EVENT GENERATED')
-  console.log(event)
-
   return event
 }

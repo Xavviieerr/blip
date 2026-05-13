@@ -26,14 +26,10 @@ export const useConnectionStore = defineStore('connection', {
   actions: {
     setStatus(status: ConnectionStatus) {
       this.status = status
-
-      console.log('📡 CONNECTION STATUS:', status)
     },
 
     setError(message: string) {
       this.error = message
-
-      console.error('❌ CONNECTION ERROR:', message)
     },
 
     clearError() {

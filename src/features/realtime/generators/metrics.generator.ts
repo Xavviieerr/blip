@@ -20,8 +20,5 @@ export function generateMetricEvent(): MetricEvent {
     },
   }
 
-  console.log('📊 METRIC EVENT GENERATED')
-  console.log(event)
-
   return event
 }

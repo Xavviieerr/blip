@@ -13,11 +13,12 @@ export function useRealtimeSync() {
 
   onMounted(() => {
     const unsubscribe = streamService.subscribe((event) => {
-      console.log('📦 EVENT RECEIVED VIA SYNC:', event)
-
       realtime.addEvent(event)
 
-      if (event.type === 'alert' && (event.alert.severity === 'high' || event.alert.severity === 'critical')) {
+      if (
+        event.type === 'alert' &&
+        (event.alert.severity === 'high' || event.alert.severity === 'critical')
+      ) {
         toastStore.addToast(event)
       }
     })

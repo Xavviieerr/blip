@@ -628,16 +628,13 @@ const option = computed(() => ({
 
 ### Debugging
 
-Enable verbose logging:
+Use **Vue Devtools** for state inspection:
 
-```typescript
-// Turn on logs in console
-StreamService logs use emojis for easy scanning:
-// 📥 EVENT RECEIVED
-// 📊 METRIC STORED
-// 🚨 ALERT STORED
-// 📡 EVENTS EMITTED
-```
+- Inspect Pinia stores (realtime, connection, filters, theme, toast)
+- Track computed property dependencies
+- Monitor component re-renders
+
+All debug console.logs have been removed for production cleanliness. Error handling is performed silently to prevent UI crashes from malformed data or network issues.
 
 ---
 
