@@ -1,0 +1,51 @@
+import { computed } from 'vue'
+
+import { useRealtimeStore } from '../../realtime/store/realtime.store'
+import { useFilterStore } from '../../filters/store/filter.store'
+import { filterByTimeRange } from '../../realtime/utils/time-window'
+
+import {
+  buildCPUTrend,
+  buildMemoryTrend,
+  buildNetworkTrend,
+  buildRequestTrend,
+  buildHeatmapData,
+} from '../utils/chart-transformers'
+
+export function useChartData() {
+  const store = useRealtimeStore()
+
+  const cpuSeries = computed(() => {
+    return buildCPUTrend(filteredMetrics.value)
+  })
+
+  const memorySeries = computed(() => {
+    return buildMemoryTrend(filteredMetrics.value)
+  })
+
+  const heatmapSeries = computed(() => {
+    return buildHeatmapData(filteredMetrics.value)
+  })
+
+  const networkSeries = computed(() => {
+    return buildNetworkTrend(filteredMetrics.value)
+  })
+
+  const requestSeries = computed(() => {
+    return buildRequestTrend(filteredMetrics.value)
+  })
+
+  const filters = useFilterStore()
+
+  const filteredMetrics = computed(() => {
+    return filterByTimeRange(store.metrics, filters.timeRange)
+  })
+
+  return {
+    cpuSeries,
+    memorySeries,
+    networkSeries,
+    heatmapSeries,
+    requestSeries,
+  }
+}
