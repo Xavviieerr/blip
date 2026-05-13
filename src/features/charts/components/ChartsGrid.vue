@@ -4,12 +4,15 @@
       <CPUChart />
     </div>
     <div class="chart-container">
+      <MemoryChart />
+    </div>
+    <div class="chart-container">
       <NetworkAreaChart />
     </div>
     <div class="chart-container">
       <RequestsBarChart />
     </div>
-    <div class="chart-container">
+    <div class="chart-container md:col-span-2">
       <HeatmapChart />
     </div>
   </div>
@@ -17,6 +20,7 @@
 
 <script setup lang="ts">
 import CPUChart from './CPUChart.vue'
+import MemoryChart from './MemoryChart.vue'
 import NetworkAreaChart from './NetworkAreaChart.vue'
 import RequestsBarChart from './RequestsBarChart.vue'
 import HeatmapChart from './HeatmapChart.vue'
