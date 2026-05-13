@@ -39,9 +39,5 @@ export function generateAlertEvent(): AlertEvent {
     },
   }
 
-  console.log('🚨 ALERT EVENT GENERATED')
-
-  console.log(event)
-
   return event
 }

@@ -47,17 +47,13 @@ class StreamService {
     try {
       const events = eventBufferService.flush()
 
-      console.log(`📦 FLUSHING ${events.length} EVENTS TO SUBSCRIBERS`)
-
       for (const event of events) {
         for (const subscriber of this.subscribers) {
           subscriber(event)
         }
       }
-
-      console.log('📡 EVENTS EMITTED')
     } catch (error) {
-      console.error('❌ THROTTLED EMIT ERROR', error)
+      // Silently handle emission errors to prevent cascade failures
     }
   }
 
@@ -73,12 +69,8 @@ class StreamService {
   subscribe(callback: Subscriber) {
     this.subscribers.add(callback)
 
-    console.log('👂 SUBSCRIBER ADDED')
-
     return () => {
       this.subscribers.delete(callback)
-
-      console.log('🧹 SUBSCRIBER REMOVED')
     }
   }
 
@@ -86,8 +78,7 @@ class StreamService {
     const validation = this.validateEvent(event)
 
     if (!validation?.success) {
-      console.error('❌ INVALID EVENT BLOCKED', validation.error)
-
+      // Silently drop invalid events
       return
     }
 
@@ -98,12 +89,9 @@ class StreamService {
 
   private reconnect() {
     this.connectionStore.setStatus('reconnecting')
-
     this.connectionStore.incrementReconnect()
 
     const delay = Math.min(1000 * this.connectionStore.reconnectAttempts, 5000)
-
-    console.log(`🔄 RECONNECTING IN ${delay}ms`)
 
     this.reconnectTimeout = window.setTimeout(() => {
       this.reconnectTimeout = null
@@ -112,83 +100,51 @@ class StreamService {
   }
 
   private simulateFailure() {
-    console.warn('⚠ SIMULATED CONNECTION FAILURE')
-
     this.connectionStore.setStatus('error')
-
-    this.connectionStore.setError('Random connection drop detected')
-
+    this.connectionStore.setError('Connection lost. Reconnecting...')
     this.stop()
-
     this.reconnect()
   }
 
   start() {
-    if (this.isRunning) {
-      console.warn('⚠ STREAM ALREADY RUNNING')
-
-      return
-    }
+    if (this.isRunning) return
 
     this.isRunning = true
     this.store.setRunning(true)
 
     try {
-      console.log('🚀 STARTING STREAM...')
-
       this.connectionStore.setStatus('connecting')
 
-      // simulate connection delay
       setTimeout(() => {
         this.connectionStore.setStatus('connected')
-
         this.connectionStore.setConnectedNow()
-
-        console.log('✅ STREAM CONNECTED')
       }, 1000)
 
-      // 📊 metrics stream
       const metricsInterval = window.setInterval(() => {
-        const event = generateMetricEvent()
-
-        this.emit(event)
+        this.emit(generateMetricEvent())
       }, 1000)
 
-      // 🚨 alerts stream
       const alertsInterval = window.setInterval(() => {
-        const event = generateAlertEvent()
-
-        this.emit(event)
+        this.emit(generateAlertEvent())
       }, 3000)
 
-      // 🧾 activity stream
       const activityInterval = window.setInterval(() => {
-        const event = generateActivityEvent()
-
-        this.emit(event)
+        this.emit(generateActivityEvent())
       }, 2000)
 
-      // random simulated failure
       const failureInterval = window.setInterval(() => {
-        const randomFailure = Math.random() < 0.1
-
-        if (randomFailure) {
+        if (Math.random() < 0.1) {
           this.simulateFailure()
         }
       }, 10000)
 
-      // save intervals for cleanup
       this.intervals.push(metricsInterval, alertsInterval, activityInterval, failureInterval)
     } catch (error) {
-      console.error('❌ STREAM START ERROR', error)
-
       this.connectionStore.setStatus('error')
     }
   }
 
   stop() {
-    console.log('🛑 STOPPING STREAM')
-
     this.connectionStore.setStatus('disconnected')
 
     if (this.reconnectTimeout) {

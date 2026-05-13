@@ -21,8 +21,6 @@ export const useRealtimeStore = defineStore('realtime', {
   actions: {
     togglePause() {
       this.isPaused = !this.isPaused
-
-      console.log(this.isPaused ? '⏸ STREAM PAUSED' : '▶ STREAM RESUMED')
     },
 
     setRunning(status: boolean) {
@@ -33,42 +31,29 @@ export const useRealtimeStore = defineStore('realtime', {
       this.metrics = []
       this.alerts = []
       this.activity = []
-
-      console.log('🧹 STORE CLEARED')
     },
 
     addEvent(event: RealtimeEvent) {
       if (this.isPaused) return
-      console.log('📥 EVENT RECEIVED IN STORE:', event)
       try {
         switch (event.type) {
           case 'metric':
             this.metrics.unshift(event)
-
-            // keep last 100
             this.metrics = this.metrics.slice(0, 100)
-
-            console.log('📊 STORED METRIC')
             break
 
           case 'alert':
             this.alerts.unshift(event)
-
             this.alerts = this.alerts.slice(0, 100)
-
-            console.log('🚨 STORED ALERT')
             break
 
           case 'activity':
             this.activity.unshift(event)
-
             this.activity = this.activity.slice(0, 100)
-
-            console.log('🧾 STORED ACTIVITY')
             break
         }
       } catch (error) {
-        console.error('❌ STORE ERROR', error)
+        // Silently handle store errors to prevent UI crashes
       }
     },
   },

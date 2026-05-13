@@ -40,10 +40,10 @@
     <p>Total Alerts: {{ summary.totalAlerts }}</p>
     <p>Spike Detected: {{ summary.spikeDetected }}</p> -->
 
-<p>
-Health Status:
-{{ alertLevel }}
-</p>
+    <p>
+      Health Status:
+      {{ alertLevel }}
+    </p>
 
     <!-- LIVE SAMPLE DATA -->
     <h3>Latest Metric</h3>
@@ -127,18 +127,6 @@ const { summary, isHealthy, alertLevel } = useAnalytics()
 const connection = useConnectionStore()
 const { cpuSeries, heatmapSeries } = useChartData()
 const { cpuTrend, recentActivity, criticalAlerts, latestMetrics } = useRealtimeSelectors()
-console.log("Analytics Max CPU:", summary.value.maxCpu)
-// watchEffect(() => {
-//   console.log('======================')
-
-//   console.log('📊 latestMetrics', JSON.parse(JSON.stringify(latestMetrics.value)))
-
-//   console.log('🚨 criticalAlerts', JSON.parse(JSON.stringify(criticalAlerts.value)))
-
-//   console.log('🧾 recentActivity', JSON.parse(JSON.stringify(recentActivity.value)))
-
-//   console.log('📈 cpuTrend', JSON.parse(JSON.stringify(cpuTrend.value)))
-// })
 
 const store = useRealtimeStore()
 
@@ -147,15 +135,11 @@ const status = ref<'running' | 'stopped'>('stopped')
 function startStream() {
   streamService.start()
   status.value = 'running'
-
-  console.log('▶ STREAM STARTED FROM UI')
 }
 
 function stopStream() {
   streamService.stop()
   status.value = 'stopped'
-
-  console.log('⏹ STREAM STOPPED FROM UI')
 }
 
 function togglePause() {
