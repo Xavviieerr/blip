@@ -1,14 +1,16 @@
 <template>
   <div class="flex h-screen overflow-hidden bg-[var(--bg-primary)]">
     <!-- Left Navigation: Modernized Sidebar -->
-    <aside class="sidebar w-14 md:w-16 bg-[var(--bg-secondary)] border-r border-[var(--border-color)] flex flex-col justify-between items-center py-5 flex-shrink-0 transition-all z-50">
+    <aside
+      class="sidebar w-14 md:w-16 bg-[var(--bg-secondary)] border-r border-[var(--border-color)] flex flex-col justify-between items-center py-5 flex-shrink-0 transition-all z-50"
+    >
       <div class="flex flex-col items-center gap-6">
         <div class="logo-container">
           <div class="logo-box">
             <span class="logo-text">B</span>
           </div>
         </div>
-        
+
         <nav class="sidebar-nav">
           <button class="nav-btn active" title="Monitoring">
             <LayoutDashboard :size="18" />
@@ -47,7 +49,8 @@
 
       <div class="flex-1 overflow-y-auto p-3 md:p-4 custom-scrollbar">
         <div class="max-w-[1400px] mx-auto flex flex-col gap-4">
-          
+          <FiltersPanel />
+
           <div class="grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-3 items-start">
             <RealtimeControls />
             <div class="xl:h-full">
@@ -65,7 +68,6 @@
               <ActivityFeed />
             </aside>
           </div>
-          
         </div>
       </div>
     </main>
@@ -75,14 +77,14 @@
 </template>
 
 <script setup lang="ts">
-import { 
-  LayoutDashboard, 
-  ShieldAlert, 
-  Network, 
-  Server, 
-  Database, 
-  Settings, 
-  Bell 
+import {
+  LayoutDashboard,
+  ShieldAlert,
+  Network,
+  Server,
+  Database,
+  Settings,
+  Bell,
 } from 'lucide-vue-next'
 import DashboardHeader from '../components/DashboardHeader.vue'
 import ToastContainer from '../../alerts/components/ToastContainer.vue'
@@ -91,6 +93,7 @@ import MetricsGrid from '../../analytics/components/MetricsGrid.vue'
 import ChartsGrid from '../../charts/components/ChartsGrid.vue'
 import ActivityFeed from '../../activity-feed/components/ActivityFeed.vue'
 import RealtimeControls from '../../realtime/components/RealtimeControls.vue'
+import FiltersPanel from '../../filters/components/FiltersPanel.vue'
 import { useRealtimeSync } from '../../realtime/hooks/useRealtimeSync'
 
 useRealtimeSync()
